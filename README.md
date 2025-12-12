@@ -98,6 +98,126 @@ await catalog.createTable(
 )
 ```
 
+## Real-World Use Cases
+
+These scenarios reuse a small helper to keep namespace creation idempotent without swallowing unexpected errors:
+
+```typescript
+import { IcebergRestCatalog, IcebergError } from 'iceberg-js'
+
+const ensureNamespace = async (catalog: IcebergRestCatalog, namespace: string[]) => {
+  try {
+    await catalog.createNamespace({ namespace })
+  } catch (err) {
+    if (!(err instanceof IcebergError) || err.status !== 409) {
+      throw err
+    }
+  }
+}
+```
+
+### 1) Batch ingestion with partitioned events
+
+Use `createTableIfNotExists` to make your ingestion job idempotent while keeping the table partitioned for efficient queries.
+
+```typescript
+import { IcebergRestCatalog } from 'iceberg-js'
+
+const catalog = new IcebergRestCatalog({
+  baseUrl: process.env.ICEBERG_URL!,
+  auth: { type: 'bearer', token: process.env.ICEBERG_TOKEN },
+})
+
+// Ensure the namespace and table exist before writing files
+await ensureNamespace(catalog, ['analytics'])
+
+const eventsTable = await catalog.createTableIfNotExists(
+  { namespace: ['analytics'] },
+  {
+    name: 'events',
+    schema: {
+      type: 'struct',
+      fields: [
+        { id: 1, name: 'id', type: 'long', required: true },
+        { id: 2, name: 'occurred_at', type: 'timestamp', required: true },
+        { id: 3, name: 'event_type', type: 'string', required: true },
+        { id: 4, name: 'user_id', type: 'string', required: false },
+      ],
+      'schema-id': 0,
+      'identifier-field-ids': [1],
+    },
+    'partition-spec': {
+      'spec-id': 0,
+      fields: [
+        { source_id: 2, field_id: 1000, name: 'event_day', transform: 'day' },
+      ],
+    },
+    properties: {
+      'write.format.default': 'parquet',
+      'commit.manifest.min-count-to-merge': '10',
+    },
+  }
+)
+
+console.log('Writer will publish new files under', eventsTable.location)
+```
+
+### 2) Multi-environment catalogs (dev/stage/prod)
+
+Route requests to different catalogs with the `catalogName` option so your CI jobs and production pipelines stay isolated.
+
+```typescript
+const resolveCatalogName = () => {
+  if (process.env.CATALOG_NAME) return process.env.CATALOG_NAME
+  if (process.env.CI) return 'ci'
+  if (process.env.NODE_ENV === 'production') return 'prod'
+  if (process.env.NODE_ENV === 'staging') return 'staging'
+  return 'dev'
+}
+
+const catalog = new IcebergRestCatalog({
+  baseUrl: 'https://catalog.mycompany.com',
+  catalogName: resolveCatalogName(),
+  auth: { type: 'bearer', token: process.env.ICEBERG_TOKEN },
+})
+
+const exists = await catalog.tableExists({ namespace: ['analytics'], name: 'events' })
+if (!exists) {
+  await ensureNamespace(catalog, ['analytics'])
+}
+
+const tables = await catalog.listTables({ namespace: ['analytics'] })
+console.log('Tables in this environment:', tables.map((t) => t.name))
+```
+
+### 3) Automated table governance and retention
+
+Update table properties in place to enforce retention or compression settings without touching data files.
+
+```typescript
+const catalog = new IcebergRestCatalog({
+  baseUrl: process.env.ICEBERG_URL!,
+  auth: { type: 'bearer', token: process.env.ICEBERG_TOKEN },
+})
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000
+const retentionPeriodMs = 30 * ONE_DAY_MS
+
+const metadata = await catalog.loadTable({ namespace: ['analytics'], name: 'events' })
+
+await catalog.updateTable(
+  { namespace: ['analytics'], name: 'events' },
+  {
+    properties: {
+      ...metadata.properties,
+      // Keep only 30 days of snapshots and use ZSTD for new Parquet writes
+      'history.expire.max-snapshot-age-ms': String(retentionPeriodMs),
+      'write.parquet.compression-codec': 'zstd',
+    },
+  }
+)
+```
+
 ## API Reference
 
 ### Constructor
