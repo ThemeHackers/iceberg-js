@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.9.0](https://github.com/ThemeHackers/iceberg-js/compare/iceberg-js-v0.8.1...iceberg-js-v0.9.0) (2026-02-19)
+
+
+### Features
+
+* accessDelegation and codeowners ([94c65c5](https://github.com/ThemeHackers/iceberg-js/commit/94c65c503949f67d03fb7d5fe1cafd90d2196fcd))
+* add namespace and table existence checks with creation methods ([#18](https://github.com/ThemeHackers/iceberg-js/issues/18)) ([7a5d0e5](https://github.com/ThemeHackers/iceberg-js/commit/7a5d0e55d62898557c5dd69e39e8486385e87b11))
+* add purge flag to dropTable method ([#14](https://github.com/ThemeHackers/iceberg-js/issues/14)) ([ba5b723](https://github.com/ThemeHackers/iceberg-js/commit/ba5b7232a593b0240f6b65de5308e1ce7bf3df40))
+* match Catalog API return types and error structure ([#22](https://github.com/ThemeHackers/iceberg-js/issues/22)) ([87dbaba](https://github.com/ThemeHackers/iceberg-js/commit/87dbabac6e8c4cf66183aaf79109722a1339c95c))
+* release ([#4](https://github.com/ThemeHackers/iceberg-js/issues/4)) ([8b0dfbc](https://github.com/ThemeHackers/iceberg-js/commit/8b0dfbc711e4db4a4c311ec5f3c4532bd808d1e3))
+* release for all compatible envs ([#15](https://github.com/ThemeHackers/iceberg-js/issues/15)) ([5f649f8](https://github.com/ThemeHackers/iceberg-js/commit/5f649f85b9930203d20580edf77b6a44c0dd545b))
+
+
+### Bug Fixes
+
+* align IcebergType with OpenAPI spec ([#24](https://github.com/ThemeHackers/iceberg-js/issues/24)) ([82ed555](https://github.com/ThemeHackers/iceberg-js/commit/82ed555f4d9fe2bb9e26736590c87bec3b0f19f0))
+* ensure baseUrl has trailing / for proper URL creation ([#13](https://github.com/ThemeHackers/iceberg-js/issues/13)) ([6baf4b9](https://github.com/ThemeHackers/iceberg-js/commit/6baf4b9fa3252dc0c98c46a1d8c5f76a316a5071))
+* format all files ([#11](https://github.com/ThemeHackers/iceberg-js/issues/11)) ([f95874b](https://github.com/ThemeHackers/iceberg-js/commit/f95874b3b94bb7fff32970ebebbbeb7745263e02))
+* manual release workflow ([#6](https://github.com/ThemeHackers/iceberg-js/issues/6)) ([f00cea5](https://github.com/ThemeHackers/iceberg-js/commit/f00cea517fc7a57f54f868f429554c3480792ba0))
+* update npm to latest for release ([#10](https://github.com/ThemeHackers/iceberg-js/issues/10)) ([7943aca](https://github.com/ThemeHackers/iceberg-js/commit/7943acab02005ad5e5be249a201fe2dce810b57b))
+* update prefix to include version before catalog name ([#8](https://github.com/ThemeHackers/iceberg-js/issues/8)) ([db4f2ca](https://github.com/ThemeHackers/iceberg-js/commit/db4f2ca6e99469108592d66ea4a9abcc14b8bbad))
+
 ## [0.8.1](https://github.com/supabase/iceberg-js/compare/iceberg-js-v0.8.0...iceberg-js-v0.8.1) (2025-11-28)
 
 ### Bug Fixes
